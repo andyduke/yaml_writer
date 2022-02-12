@@ -85,9 +85,9 @@ class YAMLWriter extends Converter<Object?, String> {
       return true;
     } else {
       if (!node.contains("'")) {
-        s.write("'");
+        // s.write("'");
         s.write(node);
-        s.write("'");
+        // s.write("'");
         return false;
       } else {
         var str = node.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
