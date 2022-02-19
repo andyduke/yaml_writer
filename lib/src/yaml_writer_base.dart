@@ -26,7 +26,7 @@ class YAMLWriter extends Converter<Object?, String> {
     return s.toString();
   }
 
-  bool _writeTo(Object? node, StringBuffer s, {String currentIdent = ''}) {
+  bool _writeTo(Object? node, StringBuffer s, {String currentIdent = '', bool keepSameLine = false}) {
     if (node == null) {
       return _writeNull(s);
     } else if (node is num) {
@@ -36,9 +36,9 @@ class YAMLWriter extends Converter<Object?, String> {
       _writeBool(node, s);
       return false;
     } else if (node is List) {
-      return _writeList(node, s, currentIdent: currentIdent);
+      return _writeList(node, s, currentIdent: currentIdent, keepSameLine: keepSameLine);
     } else if (node is Map) {
-      return _writeMap(node, s, currentIdent: currentIdent);
+      return _writeMap(node, s, currentIdent: currentIdent, keepSameLine: keepSameLine);
     } else if (node is String) {
       return _writeString(node, s, currentIdent: currentIdent);
     } else {
@@ -107,8 +107,8 @@ class YAMLWriter extends Converter<Object?, String> {
     return _writeTo(o, s, currentIdent: currentIdent);
   }
 
-  bool _writeList(Iterable node, StringBuffer s, {String currentIdent = ''}) {
-    if (s.isNotEmpty) {
+  bool _writeList(Iterable node, StringBuffer s, {String currentIdent = '', bool keepSameLine = false}) {
+    if (!keepSameLine && s.isNotEmpty) {
       s.write('\n');
     }
 
@@ -119,7 +119,7 @@ class YAMLWriter extends Converter<Object?, String> {
     for (var item in node) {
       s.write(currentIdent);
       s.write('- ');
-      var ln = _writeTo(item, s, currentIdent: nextIdent);
+      var ln = _writeTo(item, s, currentIdent: nextIdent, keepSameLine: true);
       if (!ln) {
         s.write('\n');
         wroteLineBreak = true;
@@ -129,8 +129,8 @@ class YAMLWriter extends Converter<Object?, String> {
     return wroteLineBreak;
   }
 
-  bool _writeMap(Map node, StringBuffer s, {String currentIdent = ''}) {
-    if (s.isNotEmpty) {
+  bool _writeMap(Map node, StringBuffer s, {String currentIdent = '', bool keepSameLine = false}) {
+    if (!keepSameLine && s.isNotEmpty) {
       s.write('\n');
     }
 
@@ -139,10 +139,10 @@ class YAMLWriter extends Converter<Object?, String> {
     var wroteLineBreak = false;
 
     for (var entry in node.entries) {
-      s.write(currentIdent);
+      s.write((keepSameLine && !wroteLineBreak) ? '' : currentIdent);
       s.write(entry.key);
       s.write(': ');
-      var ln = _writeTo(entry.value, s, currentIdent: nextIdent);
+      var ln = _writeTo(entry.value, s, currentIdent: nextIdent /*, keepSameLine: true*/);
       if (!ln) {
         s.write('\n');
         wroteLineBreak = true;
